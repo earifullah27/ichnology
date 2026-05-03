@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trace Fossil Nomenclature Key</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:Georgia,serif; background:#0f0e0c; color:#cec8bc; min-height:100vh; padding:20px; }
+.wrap { max-width:700px; margin:0 auto; }
+
+header { text-align:center; margin-bottom:28px; }
+h1 { font-size:22px; color:#d4a843; letter-spacing:1px; margin-bottom:6px; }
+.sub { font-size:11px; color:#7a7268; font-style:italic; }
+
+.toggle { display:flex; justify-content:center; gap:8px; margin-top:12px; }
+.tbtn { padding:5px 16px; font-size:11px; border:1px solid #2e2b25; border-radius:4px; background:transparent; color:#7a7268; cursor:pointer; }
+.tbtn.on { background:#3d3322; border-color:#a07828; color:#d4b060; }
+
+/* GROUPS */
+.groups { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:10px; }
+.gcard { background:#171512; border:1px solid #2a2720; border-radius:8px; padding:18px 14px; cursor:pointer; text-align:left; transition:.2s; }
+.gcard:hover { background:#201e18; }
+.gicon { font-size:26px; margin-bottom:8px; }
+.gname { font-size:15px; font-weight:bold; }
+.glat  { font-size:10px; font-style:italic; color:#6a6460; margin-top:4px; }
+
+/* STEPS */
+.progress { display:flex; align-items:center; gap:8px; margin-bottom:14px; }
+.pbar { flex:1; display:flex; gap:3px; }
+.pdot { flex:1; height:3px; border-radius:2px; background:#2a2720; }
+.pdot.done { background:#a07828; }
+.pcount { font-size:11px; color:#7a7268; }
+
+.step-box { background:#171512; border:1px solid #2a2720; border-radius:8px; padding:16px; }
+.step-label { font-size:13px; font-weight:bold; color:#e0d8cc; margin-bottom:12px; }
+.options { display:flex; flex-direction:column; gap:8px; }
+.opt { background:transparent; border:1px solid #2a2720; border-radius:6px; padding:10px 14px; cursor:pointer; text-align:left; transition:.2s; }
+.opt:hover { background:#201e18; border-color:#4a4540; }
+.opt.sel { background:#3d3322; border-color:#a07828; }
+.opt-name { font-size:13px; color:#cec8bc; }
+.opt.sel .opt-name { color:#d4b060; }
+.opt-desc { font-size:11px; color:#6a6460; margin-top:2px; }
+
+.back-btn { font-size:11px; color:#7a7268; background:transparent; border:1px solid #2a2720; border-radius:4px; padding:4px 10px; cursor:pointer; }
+.back-btn:hover { color:#aaa; border-color:#4a4540; }
+.skip-link { font-size:11px; color:#7a7268; text-decoration:underline; cursor:pointer; display:inline-block; margin-top:10px; }
+
+/* PARTIAL PREVIEW */
+.preview { background:#171512; border:1px solid #221f1a; border-radius:6px; padding:10px 12px; margin-top:10px; }
+.preview-title { font-size:10px; color:#6a6460; margin-bottom:6px; }
+.chip { display:inline-block; font-style:italic; font-size:12px; color:#9a9490; background:#201e18; border:1px solid #2a2720; border-radius:4px; padding:2px 8px; margin:2px; }
+
+/* RESULTS */
+.results-box { background:#171512; border:1px solid #2a2720; border-radius:8px; padding:16px; margin-top:12px; }
+.results-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.results-title { font-size:13px; font-weight:bold; }
+.results-count { font-size:11px; color:#7a7268; margin-top:2px; }
+.reset-btn { font-size:11px; color:#7a7268; background:transparent; border:1px solid #2a2720; border-radius:4px; padding:4px 10px; cursor:pointer; }
+.reset-btn:hover { color:#aaa; }
+
+.params-used { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px; }
+.param-tag { font-size:11px; background:#201e18; border:1px solid #2a2720; border-radius:4px; padding:2px 8px; color:#8a8480; }
+.param-val { color:#cec8bc; }
+
+.taxa-list { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.taxon { font-style:italic; font-size:13px; background:#3d3322; border:1px solid #7a5820; border-radius:4px; padding:4px 10px; color:#d4b060; }
+
+.explain-btn { font-size:11px; border:1px solid #7a5820; border-radius:4px; padding:6px 14px; background:transparent; color:#c4a050; cursor:pointer; transition:.2s; }
+.explain-btn:hover { background:#3d3322; }
+.explain-btn:disabled { opacity:.4; cursor:default; }
+
+.ai-box { margin-top:12px; border-top:1px solid #2a2720; padding-top:12px; font-size:13px; line-height:1.7; color:#c4bcb0; white-space:pre-wrap; }
+.loading { color:#7a7268; font-style:italic; font-size:12px; }
+
+.ref { font-size:10px; font-style:italic; color:#4a4540; border-top:1px solid #1e1c18; padding-top:10px; margin-top:14px; }
+
+/* AI MODE */
+.ai-desc { font-size:12px; color:#7a7268; margin-bottom:10px; line-height:1.6; }
+textarea { width:100%; background:#171512; border:1px solid #2a2720; border-radius:6px; padding:10px; color:#cec8bc; font-family:Georgia,serif; font-size:13px; resize:vertical; outline:none; }
+textarea:focus { border-color:#a07828; }
+.ident-btn { margin-top:8px; font-size:11px; border:1px solid #7a5820; border-radius:4px; padding:6px 16px; background:transparent; color:#c4a050; cursor:pointer; transition:.2s; }
+.ident-btn:hover { background:#3d3322; }
+.ident-btn:disabled { opacity:.4; cursor:default; }
+
+footer { text-align:center; margin-top:32px; font-size:10px; color:#3a3730; }
+
+/* color accents per group */
+.amber  .gname { color:#d4a843; }
+.emerald .gname { color:#6aab7a; }
+.sky    .gname { color:#6a9aba; }
+.rose   .gname { color:#ba6a7a; }
+.violet .gname { color:#9a7aba; }
+.amber:hover  { border-color:#a07828!important; }
+.emerald:hover{ border-color:#4a8a5a!important; }
+.sky:hover    { border-color:#4a7a9a!important; }
+.rose:hover   { border-color:#9a4a5a!important; }
+.violet:hover { border-color:#7a5a9a!important; }
+
+.rt-amber   .results-title { color:#d4a843; }
+.rt-emerald .results-title { color:#6aab7a; }
+.rt-sky     .results-title { color:#6a9aba; }
+.rt-rose    .results-title { color:#ba6a7a; }
+.rt-violet  .results-title { color:#9a7aba; }
+
+.no-match { font-size:12px; font-style:italic; color:#7a7268; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Trace Fossil Nomenclature Key</h1>
+  <p class="sub">After Knaust &amp; Bromley (2012) &middot; <span style="font-style:normal">Trace Fossils as Indicators of Sedimentary Environments</span></p>
+  <div class="toggle">
+    <button class="tbtn on" id="btn-wizard" onclick="switchMode('wizard')">Wizard Key</button>
+    <button class="tbtn"    id="btn-ai"     onclick="switchMode('ai')">AI Identification</button>
+  </div>
+</header>
+
+<div id="wizard-panel">
+  <div id="app"></div>
+</div>
+
+<div id="ai-panel" style="display:none">
+  <div class="step-box">
+    <p class="ai-desc">
+      Deskripsikan trace fossil yang Anda amati: morfologi, ukuran, orientasi, substrat, litologi asosiasi, konteks stratigrafi.
+      AI akan menyarankan kandidat ichnogenera berdasarkan Knaust &amp; Bromley (2012).
+    </p>
+    <textarea id="ai-input" rows="5"
+      placeholder="Contoh: Subvertical, unbranched cylindrical burrow, ~8 mm diameter, passive fill, no lining, in shallow-marine sandstone..."></textarea>
+    <br>
+    <button class="ident-btn" id="ident-btn" onclick="runAI()">Identifikasi Trace Fossil &rarr;</button>
+  </div>
+  <div id="ai-result"></div>
+</div>
+
+<footer>Trace Fossil Systematics &middot; Knaust &amp; Bromley (2012) &middot; 585 valid ichnogenera (data to 2011)</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════
+
+const GROUPS = {
+  burrows:      { label:"Burrows",      latin:"Domichnia / Fodinichnia", icon:"◎", cls:"amber"   },
+  bioerosional: { label:"Bioerosional", latin:"Calichnia / Fixichnia",   icon:"⊗", cls:"emerald" },
+  trackways:    { label:"Trackways",    latin:"Repichnia",               icon:"⋯", cls:"sky"     },
+  imprints:     { label:"Imprints",     latin:"Cubichnia",               icon:"◇", cls:"rose"    },
+  trails:       { label:"Trails",       latin:"Pascichnia",              icon:"〜", cls:"violet"  },
+};
+
+const WIZARD_STEPS = {
+  burrows: [
+    { key:"orientation", label:"Orientasi", options:[
+      { v:"subhorizontal", l:"Subhorizontal", d:"Sejajar bidang perlapisan" },
+      { v:"subvertical",   l:"Subvertikal",   d:"Tegak lurus bidang perlapisan" },
+      { v:"complex",       l:"Kompleks",      d:"Multi-arah, jaringan tiga dimensi" },
+    ]},
+    { key:"branching", label:"Percabangan", options:[
+      { v:"unbranched", l:"Unbranched", d:"Tabung tunggal, tidak bercabang" },
+      { v:"branched",   l:"Branched",   d:"Bercabang dua atau lebih" },
+    ]},
+    { key:"shape", label:"Bentuk / Morfologi", dynamic:true },
+    { key:"fill",  label:"Pengisian Sedimen", options:[
+      { v:"passive", l:"Passive fill", d:"Sedimen mengisi pasif setelah burrow ditinggalkan" },
+      { v:"active",  l:"Active fill",  d:"Organisme mengisi aktif saat bergerak (meniscate, spreite)" },
+    ]},
+    { key:"lining", label:"Struktur Dinding", options:[
+      { v:"lining",    l:"Lining / Mantle ada",    d:"Dinding diperkuat mukus, pelet, atau material biogenik" },
+      { v:"no_lining", l:"Tanpa lining / Mantle",  d:"Dinding terbuka, kontak langsung dengan sedimen" },
+    ]},
+  ],
+  bioerosional: [
+    { key:"branching", label:"Pola Percabangan", options:[
+      { v:"unbranched", l:"Unbranched", d:"Boring sederhana tanpa percabangan" },
+      { v:"branched",   l:"Branched",   d:"Sistem boring bercabang" },
+    ]},
+    { key:"bio_shape", label:"Bentuk Boring", options:[
+      { v:"cylindrical", l:"Cylindrical",       d:"Boring tabung sederhana" },
+      { v:"winding",     l:"Winding",           d:"Boring sinuous atau meandering" },
+      { v:"u_shaped",    l:"U-shaped",          d:"Boring bentuk-U" },
+      { v:"clavate",     l:"Clavate",           d:"Boring bentuk gada" },
+      { v:"groove",      l:"Groove / Scar",     d:"Alur atau bekas erodasi di permukaan" },
+      { v:"circular",    l:"Circular",          d:"Penampang melingkar" },
+      { v:"elliptical",  l:"Elliptical",        d:"Boring oval atau elips" },
+      { v:"stellate",    l:"Stellate",          d:"Etching berbentuk bintang" },
+      { v:"spheroidal",  l:"Spheroidal",        d:"Rongga hampir berbentuk bola" },
+      { v:"network",     l:"Network / Boxwork", d:"Sistem jaringan kompleks" },
+      { v:"rosetted",    l:"Rosetted",          d:"Susunan rozet" },
+      { v:"radial",      l:"Radial / Sacks",    d:"Memancar dari pusat, atau berbentuk kantung" },
+    ]},
+  ],
+  trackways: [
+    { key:"seriality", label:"Susunan Trek", options:[
+      { v:"uniserial", l:"Uniserial", d:"Satu baris trek median" },
+      { v:"biserial",  l:"Biserial",  d:"Dua baris trek paralel" },
+    ]},
+    { key:"track_count", label:"Jumlah Trek", options:[
+      { v:"one",      l:"1 trek",       d:"" },
+      { v:"two",      l:"2 trek",       d:"" },
+      { v:"three",    l:"3 trek",       d:"" },
+      { v:"four",     l:"4 trek",       d:"" },
+      { v:"five",     l:"5 trek",       d:"" },
+      { v:"six_plus", l:"6+ / variabel",d:"Polidaktil atau jumlah banyak" },
+    ]},
+    { key:"track_shape", label:"Morfologi Trek Individual", options:[
+      { v:"linear",    l:"Linear / Lurus",      d:"" },
+      { v:"horseshoe", l:"Horseshoe / U-shaped", d:"" },
+      { v:"lunate",    l:"Lunate / Melengkung",  d:"" },
+      { v:"circular",  l:"Circular / Oval",      d:"" },
+      { v:"forked",    l:"Forked",               d:"" },
+      { v:"sigmoidal", l:"Sigmoidal",            d:"" },
+      { v:"variable",  l:"Variabel / Kompleks",  d:"" },
+    ]},
+  ],
+  imprints: [
+    { key:"imprint_shape", label:"Bentuk Keseluruhan", options:[
+      { v:"circular",          l:"Circular / Subcircular",       d:"Cetakan istirahat membulat" },
+      { v:"ellipsoidal",       l:"Ellipsoidal / Ovoid",          d:"" },
+      { v:"bilobate",          l:"Bilobate",                     d:"Cetakan dua-lobus" },
+      { v:"star_shaped",       l:"Bintang (Stellate)",           d:"Cetakan berbintang" },
+      { v:"lunate",            l:"Lunate",                       d:"Cetakan berbentuk bulan sabit" },
+      { v:"hook_sinuous",      l:"Hook-shaped / Sinuous",        d:"" },
+      { v:"t_shaped",          l:"T-shaped",                     d:"" },
+      { v:"dumbbell",          l:"Dumbbell-shaped",              d:"" },
+      { v:"linear_striations", l:"Striasi linear / melengkung",  d:"" },
+      { v:"biserial_stria",    l:"Striasi biserial",             d:"" },
+      { v:"cone_multiseg",     l:"Kerucut / Multisegmen",        d:"" },
+      { v:"irregular",         l:"Irregular / Tripartite",       d:"" },
+    ]},
+  ],
+  trails: [
+    { key:"lateral_elements", label:"Jumlah Elemen Lateral", options:[
+      { v:"unary",      l:"Unary (1)",    d:"Satu alur atau tonjolan median" },
+      { v:"binary",     l:"Binary (2)",   d:"Dua elemen lateral" },
+      { v:"ternary",    l:"Ternary (3)",  d:"Tiga elemen lateral" },
+      { v:"quaternary", l:"Quaternary (4)",d:"Empat elemen lateral" },
+      { v:"multary",    l:"Multary (5+)", d:"Lima atau lebih elemen lateral" },
+    ]},
+    { key:"trail_morphology", label:"Morfologi Keseluruhan", options:[
+      { v:"straight_curved",   l:"Lurus atau melengkung",  d:"" },
+      { v:"meandering",        l:"Meandering",             d:"" },
+      { v:"winding_loops",     l:"Berliku dengan loop",    d:"" },
+      { v:"high_angle_bends",  l:"Tikungan sudut tinggi",  d:"" },
+      { v:"transverse_ridges", l:"Tonjolan transversal",   d:"" },
+      { v:"sinuous_loops",     l:"Sinuous dengan loop",    d:"" },
+      { v:"wave_like",         l:"Gelombang",              d:"" },
+      { v:"groups_stria",      l:"Kelompok striasi",       d:"" },
+      { v:"arrow_like",        l:"Cetakan berbentuk panah",d:"" },
+    ]},
+  ],
+};
+
+function getBurrowShapes(orientation, branching) {
+  const map = {
+    subhorizontal_unbranched: [
+      { v:"wall_shaped",  l:"Wall-shaped / Ribbon-like", d:"Penampang pipih, memanjang" },
+      { v:"bilobate",     l:"Bilobate",                  d:"Dua-lobus, tipikal trilobita" },
+      { v:"v_shaped",     l:"V-shaped",                  d:"Penampang berbentuk V" },
+      { v:"helical",      l:"Helical / Spiral",          d:"Morfologi korkskrup" },
+      { v:"radial",       l:"Radial",                    d:"Memancar dari pusat" },
+      { v:"u_j_laminar",  l:"U- / J-shaped / Laminar",  d:"Spreite retrusif (mis. Rhizocorallium)" },
+      { v:"cylindrical",  l:"Cylindrical",               d:"Silinder seragam sederhana" },
+      { v:"trilobate",    l:"Trilobate",                 d:"Tiga lobus" },
+    ],
+    subhorizontal_branched: [
+      { v:"lobate",             l:"Lobate / Fan-shaped",   d:"Susunan kipas atau lobus" },
+      { v:"radial",             l:"Radial",                d:"Cabang memancar" },
+      { v:"net_like",           l:"Net-like / Mesh",       d:"Pola jaringan atau jaring" },
+      { v:"cylindrical",        l:"Cylindrical",           d:"" },
+      { v:"biserial",           l:"Biserial",              d:"Dua seri paralel" },
+      { v:"winding_meandering", l:"Winding / Meandering",  d:"" },
+      { v:"spiral",             l:"Spiral",                d:"" },
+      { v:"bifurcated",         l:"Bifurcated / Forked",   d:"" },
+    ],
+    subvertical_unbranched: [
+      { v:"cylindrical",  l:"Cylindrical",          d:"Tabung vertikal sederhana" },
+      { v:"conical",      l:"Conical / Club-shaped", d:"Meruncing ke bawah" },
+      { v:"u_bow_shaped", l:"U- / Bow-shaped",       d:"Burrow loop berbentuk U" },
+      { v:"helical",      l:"Helical / Spiral",      d:"" },
+      { v:"j_fan",        l:"J-shaped / Fan-shaped", d:"" },
+    ],
+    subvertical_branched: [
+      { v:"u_shaped",    l:"U-shaped",            d:"" },
+      { v:"y_shaped",    l:"Y-shaped",            d:"" },
+      { v:"bifurcated",  l:"Bifurcated",          d:"" },
+      { v:"cylindrical", l:"Cylindrical (branched)",d:"" },
+      { v:"club_shaped", l:"Club-shaped",         d:"" },
+      { v:"bundled",     l:"Bundled",             d:"" },
+      { v:"palmate",     l:"Palmate",             d:"Susunan seperti telapak tangan" },
+    ],
+    complex_unbranched: [
+      { v:"zig_zag",       l:"Zig-zag / Network", d:"" },
+      { v:"boxwork",       l:"Boxwork",           d:"" },
+      { v:"radial",        l:"Radial",            d:"" },
+      { v:"meandering",    l:"Meandering",        d:"" },
+      { v:"spiral",        l:"Spiral",            d:"" },
+      { v:"root_like",     l:"Root-like",         d:"" },
+      { v:"tunnel_serial", l:"Tunnel with serial shafts", d:"" },
+    ],
+    complex_branched: [
+      { v:"zig_zag",   l:"Zig-zag",   d:"" },
+      { v:"boxwork",   l:"Boxwork",   d:"" },
+      { v:"radial",    l:"Radial",    d:"" },
+      { v:"meandering",l:"Meandering",d:"" },
+      { v:"spiral",    l:"Spiral",    d:"" },
+    ],
+  };
+  if (!orientation || !branching) return [];
+  return map[`${orientation}_${branching}`] || [];
+}
+
+const TAXA_DB = [
+  // BURROWS — subhorizontal unbranched
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"wall_shaped",  fill:"passive", lining:"lining",    taxa:["Palaeophycus","Biformites","Walpia","Cystichnium","Nummipera","Oikobesalon","Fimbriubichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"wall_shaped",  fill:"passive", lining:"no_lining", taxa:["Archaeonassa","Halimedides","Hormosiroides","Katarrhedrites","Katbergia","Megaplanolites","Oravaichnium","Tuberculichnus","Belonidopsisichnium"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"bilobate",     fill:"passive", lining:"no_lining", taxa:["Cruziana","Rusophycus","Isopodichnus","Didymaulichnus","Raaschiichnus","Tylichnus","Aglaspidichnus","Carpatichnis","Tumblagoodichnos"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"bilobate",     fill:"active",  lining:"no_lining", taxa:["Planolites","Taenidium","Beaconites","Scoyenia","Scolecocoprus","Naktodemasis","Halopoa","Scolicia","Protovirgularia"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"v_shaped",     fill:"passive", lining:"no_lining", taxa:["Gyrochorte","Curvolithus","Fuersichnus","Hoplichnus","Shanwangichnus","Sagittichnus","Vitichnus","Furculosus","Laqueichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"helical",      fill:"passive", lining:"lining",    taxa:["Helicorhaphe","Helicolithus","Helicodromites","Parahelicorhaphe","Planispiralichnus","Protospiralichnus","Augerinoichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"u_j_laminar",  fill:"active",  lining:"no_lining", taxa:["Rhizocorallium","Teichichnus","Multilamella"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"cylindrical",  fill:"active",  lining:"no_lining", taxa:["Ancorichnus","Macaronichnus","Trichophycus","Wenganichnus","Ereipichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"radial",       fill:"passive", lining:"no_lining", taxa:["Capodistria","Fascisichnium","Lorenzinia","Squamichnus","Chagrinichnites","Streptichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"unbranched", shape:"trilobate",    fill:"passive", lining:"no_lining", taxa:["Brookvalichnus"] },
+  // BURROWS — subhorizontal branched
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"lobate",              fill:"passive", lining:"no_lining", taxa:["Arthrophycus","Falcichnites","Phycosiphon","Phymatoderma","Polykampton","Lophoctenium","Saportia"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"radial",              fill:"passive", lining:"no_lining", taxa:["Keckia","Cladichnus","Pilichnus","Ubinia","Strobilorhaphe","Pennatulites","Phycodes","Quebecichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"net_like",            fill:"passive", lining:"no_lining", taxa:["Skolichnus","Arachnostega","Desmograpton","Megagrapton","Paleodictyon"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"winding_meandering",  fill:"passive", lining:"no_lining", taxa:["Oldhamia","Acanthorhaphe","Oscillorhaphe","Belorhaphe","Dactylophycus","Flabellichnus","Volkichnium","Glockerichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"winding_meandering",  fill:"active",  lining:"no_lining", taxa:["Dendrotichnium","Radionereites","Yakutatia","Estrellichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"cylindrical",         fill:"passive", lining:"no_lining", taxa:["Asterosoma","Mixoteixixchnus","Omanichnus","Taxichnites"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"spiral",              fill:"active",  lining:"no_lining", taxa:["Spirodesmos","Boashanichnus","Yangziichnus"] },
+  { g:"burrows", orientation:"subhorizontal", branching:"branched", shape:"bifurcated",          fill:"passive", lining:"no_lining", taxa:["Myrowichnus","Paradidymaulichnus","Lobichnus"] },
+  // BURROWS — subvertical unbranched
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"cylindrical",  fill:"passive", lining:"no_lining", taxa:["Skolithos","Monocraterion","Trichichnus","Caletichnus","Chomatichnus","Siphonichnus","Tasselia","Pustulichnus"] },
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"cylindrical",  fill:"passive", lining:"lining",    taxa:["Cylindrichnus","Lingulichnus","Liholites","Ophiomorpha"] },
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"cylindrical",  fill:"active",  lining:"no_lining", taxa:["Bergaueria","Cardioichnus","Conostichnus","Lockeia","Osculichnus","Solicyclus","Solanichnium"] },
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"u_bow_shaped", fill:"passive", lining:"no_lining", taxa:["Arenicolites","Diplocraterion","Catenarichnus","Catenichnus","Polarichnus"] },
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"j_fan",        fill:"passive", lining:"no_lining", taxa:["Gyrolithes","Amanitichnus","Communichnus"] },
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"helical",      fill:"active",  lining:"no_lining", taxa:["Rosselia","Cornulatichnus","Lithoplaision","Syringomorpha","Heimdallia","Paradictyodora","Tursia"] },
+  { g:"burrows", orientation:"subvertical", branching:"unbranched", shape:"conical",      fill:"passive", lining:"no_lining", taxa:["Conichnus","Dolopichnus","Scaphichnium","Mammillichnis","Kulindrichnus"] },
+  // BURROWS — subvertical branched
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"y_shaped",    fill:"passive", lining:"no_lining", taxa:["Psilonichnus","Polykladichnus","Parahaentzschelinia","Balanoglossites"] },
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"y_shaped",    fill:"passive", lining:"lining",    taxa:["Parmaichnus","Ophiomorpha"] },
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"cylindrical", fill:"passive", lining:"no_lining", taxa:["Camborygma","Kauriichnus","Solemyatuba","Lanicoidichna"] },
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"club_shaped", fill:"passive", lining:"no_lining", taxa:["Chondrites","Pragichnus","Saronichnus"] },
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"bundled",     fill:"passive", lining:"no_lining", taxa:["Tubularina","Altichnus","Fascifodina","Bathichnus","Felderichnus"] },
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"palmate",     fill:"active",  lining:"no_lining", taxa:["Hartsellea"] },
+  { g:"burrows", orientation:"subvertical", branching:"branched", shape:"bifurcated",  fill:"passive", lining:"no_lining", taxa:["Loloichnus"] },
+  // BURROWS — complex
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"zig_zag",       fill:"passive", lining:"no_lining", taxa:["Thalassinoides","Spongeliomorpha","Socialites","Ardelia","Bornichnus","Virgaichnus"] },
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"boxwork",       fill:"passive", lining:"no_lining", taxa:["Paleodictyon","Megagrapton","Vagorichnus","Irredictyon","Labyrintichnus","Multina"] },
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"meandering",    fill:"passive", lining:"no_lining", taxa:["Paleomeandron","Urohelminthoida","Protopaleodictyon","Punctorhaphe"] },
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"spiral",        fill:"passive", lining:"no_lining", taxa:["Ellipsoideichnus","Spirorhaphe"] },
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"root_like",     fill:"passive", lining:"no_lining", taxa:["Chondrites","Treptichnus","Lennea","Rutichnus"] },
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"tunnel_serial", fill:"passive", lining:"lining",    taxa:["Ophiomorpha","Spongeliomorpha"] },
+  { g:"burrows", orientation:"complex", branching:"unbranched", shape:"radial",        fill:"passive", lining:"no_lining", taxa:["Gyrophyllites","Heliochone","Echinospira","Stellavelum","Haentzschelinia"] },
+  { g:"burrows", orientation:"complex", branching:"branched",   shape:"zig_zag",       fill:"passive", lining:"no_lining", taxa:["Thalassinoides","Spongeliomorpha"] },
+  { g:"burrows", orientation:"complex", branching:"branched",   shape:"boxwork",       fill:"passive", lining:"no_lining", taxa:["Paleodictyon","Megagrapton"] },
+  // BIOEROSIONAL
+  { g:"bioerosional", branching:"unbranched", bio_shape:"cylindrical", taxa:["Trypanites","Palaeosabella","Ramosulcichnus","Stipitichnus","Anobichnium","Linckichnus","Tubulohyalichnus"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"winding",     taxa:["Caulostrepsis","Maeandropolydora","Spirichnus","Orthogonum","Scolecia","Chaetophorites"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"u_shaped",    taxa:["Talpina","Feldmannia","Ropalonaria","Foraripora","Ichnoreticulina"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"clavate",     taxa:["Gastrochaenolites","Belichnus","Flagrichnus","Teredolites","Phrixichnus","Sanctum"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"groove",      taxa:["Radulichnus","Gnathichnus","Sulcichnus","Petroxestes","Osteocallis"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"circular",    taxa:["Oichnus","Circolites","Tombownichnus","Planovolites","Lazaichnus"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"elliptical",  taxa:["Rogerella","Umbichnus","Aurimorpha","Dipatulichnus"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"stellate",    taxa:["Gnathichnus","Stellatichnus","Centrichnus","Fossichnus"] },
+  { g:"bioerosional", branching:"unbranched", bio_shape:"spheroidal",  taxa:["Entobia","Sanctum","Cubiculum","Ichnogutta"] },
+  { g:"bioerosional", branching:"branched",   bio_shape:"network",     taxa:["Entobia","Dendrina","Nododendrina","Platydendrina","Ramodendrina","Semidendrina"] },
+  { g:"bioerosional", branching:"branched",   bio_shape:"radial",      taxa:["Fascichnus","Polyactina","Rhopalia","Saccomorpha","Cavernula"] },
+  { g:"bioerosional", branching:"branched",   bio_shape:"rosetted",    taxa:["Clionolithes","Dendrorete","Pyrodendrina","Hyellomorpha"] },
+  { g:"bioerosional", branching:"branched",   bio_shape:"cylindrical", taxa:["Pecinolites","Helicotaphrichnus","Carporichnus"] },
+  // TRACKWAYS
+  { g:"trackways", seriality:"uniserial", track_count:"two",      track_shape:"linear",    taxa:["Diplichnites","Climacodichnus","Ichthyoidichnites","Myriapodites"] },
+  { g:"trackways", seriality:"uniserial", track_count:"one",      track_shape:"linear",    taxa:["Monomorphichnus","Arthrotelsonichnus","Pirandikus"] },
+  { g:"trackways", seriality:"uniserial", track_count:"one",      track_shape:"sigmoidal", taxa:["Dimorphichnus"] },
+  { g:"trackways", seriality:"uniserial", track_count:"six_plus", track_shape:"linear",    taxa:["Protichnites","Hexapodichnus","Warvichnium","Lithographus"] },
+  { g:"trackways", seriality:"uniserial", track_count:"six_plus", track_shape:"variable",  taxa:["Kouphichnium","Palmichnium","Merostomichnites"] },
+  { g:"trackways", seriality:"uniserial", track_count:"three",    track_shape:"linear",    taxa:["Pentapodichnus","Lineatichnus","Tripodichnus"] },
+  { g:"trackways", seriality:"uniserial", track_count:"four",     track_shape:"linear",    taxa:["Glaciichnium","Parahamipes","Umfolozia"] },
+  { g:"trackways", seriality:"uniserial", track_count:"five",     track_shape:"variable",  taxa:["Paleohelcura","Heteropodichnus","Octopodichnus","Orchesteropus"] },
+  { g:"trackways", seriality:"biserial",  track_count:"two",      track_shape:"circular",  taxa:["Coenobichnus","Maculichna","Siskemia"] },
+  { g:"trackways", seriality:"biserial",  track_count:"two",      track_shape:"horseshoe", taxa:["Asaphoidichnus","Kalnaichnus"] },
+  { g:"trackways", seriality:"uniserial", track_count:"two",      track_shape:"forked",    taxa:["Bifurcatichnus","Bifurculapes","Tasmanadia"] },
+  { g:"trackways", seriality:"uniserial", track_count:"two",      track_shape:"lunate",    taxa:["Hamipes","Harpepus"] },
+  // IMPRINTS
+  { g:"imprints", imprint_shape:"star_shaped",       taxa:["Asteriacites","Asterichnites","Ichnocumulus"] },
+  { g:"imprints", imprint_shape:"circular",          taxa:["Medusinites","Rotamedusa","Orbiculichnus","Solicyclus"] },
+  { g:"imprints", imprint_shape:"ellipsoidal",       taxa:["Bergaueria","Naviculichnium","Solusichnium","Kingella","Surculichnus","Musculopodus"] },
+  { g:"imprints", imprint_shape:"bilobate",          taxa:["Gluckstadtella","Pseudobilobites"] },
+  { g:"imprints", imprint_shape:"lunate",            taxa:["Selenichnites","Limulicubichnus"] },
+  { g:"imprints", imprint_shape:"linear_striations", taxa:["Avolatichnium","Striatichnium","Radichnus","Stiallia"] },
+  { g:"imprints", imprint_shape:"biserial_stria",    taxa:["Arborichnus","Ramosichnus"] },
+  { g:"imprints", imprint_shape:"hook_sinuous",      taxa:["Ophioichnus","Zhadaichnus"] },
+  { g:"imprints", imprint_shape:"dumbbell",          taxa:["Arthraria"] },
+  { g:"imprints", imprint_shape:"t_shaped",          taxa:["Monofungites"] },
+  { g:"imprints", imprint_shape:"cone_multiseg",     taxa:["Tripartichnus","Craticulichnum","Tortilichnus"] },
+  { g:"imprints", imprint_shape:"irregular",         taxa:["Pollichianum","Tonganoxichnus"] },
+  // TRAILS
+  { g:"trails", lateral_elements:"unary",      trail_morphology:"straight_curved",   taxa:["Helminthoidichnites","Gordia","Monaulichnus","Aliichnum","Talitrichnus"] },
+  { g:"trails", lateral_elements:"unary",      trail_morphology:"winding_loops",     taxa:["Mermia","Gordia","Herpystezoum"] },
+  { g:"trails", lateral_elements:"unary",      trail_morphology:"meandering",        taxa:["Taphrhelminthoides"] },
+  { g:"trails", lateral_elements:"unary",      trail_morphology:"high_angle_bends",  taxa:["Haplotichnus"] },
+  { g:"trails", lateral_elements:"unary",      trail_morphology:"wave_like",         taxa:["Longshanichnus"] },
+  { g:"trails", lateral_elements:"binary",     trail_morphology:"straight_curved",   taxa:["Diplopodichnus","Linoichnus","Vadichnites","Steinsfjordichnus"] },
+  { g:"trails", lateral_elements:"binary",     trail_morphology:"meandering",        taxa:["Taphrhelminthoides"] },
+  { g:"trails", lateral_elements:"binary",     trail_morphology:"transverse_ridges", taxa:["Linoichnus","Vadichnites","Rugicirichnus"] },
+  { g:"trails", lateral_elements:"ternary",    trail_morphology:"straight_curved",   taxa:["Trisulcus","Lajasichnus","Telsonichnus"] },
+  { g:"trails", lateral_elements:"quaternary", trail_morphology:"straight_curved",   taxa:["Tetraichnites","Agrichnium"] },
+  { g:"trails", lateral_elements:"multary",    trail_morphology:"groups_stria",      taxa:["Serpentichnoides","Protichnites"] },
+  { g:"trails", lateral_elements:"multary",    trail_morphology:"straight_curved",   taxa:["Longshanichnus","Shamaoichnus"] },
+  { g:"trails", lateral_elements:"unary",      trail_morphology:"arrow_like",        taxa:["Protovirgularia"] },
+  { g:"trails", lateral_elements:"binary",     trail_morphology:"sinuous_loops",     taxa:["Diplopodichnus","Terricolichnus"] },
+];
+
+function queryTaxa(group, params) {
+  const keys = Object.entries(params).filter(([,v])=>v).map(([k])=>k);
+  const res = TAXA_DB.filter(e => {
+    if (e.g !== group) return false;
+    return keys.every(k => !e[k] || e[k] === params[k]);
+  }).flatMap(e => e.taxa);
+  return [...new Set(res)];
+}
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+
+let state = {
+  group: null,
+  params: {},
+  step: 0,
+  aiText: "",
+  aiLoading: false,
+};
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+
+function render() {
+  const app = document.getElementById("app");
+  const { group, params, step } = state;
+
+  if (step === 0 || !group) {
+    app.innerHTML = renderGroups();
+    return;
+  }
+
+  const steps = WIZARD_STEPS[group];
+  const results = queryTaxa(group, params);
+  let html = "";
+
+  // Progress
+  html += `<div class="progress">
+    <button class="back-btn" onclick="goBack()">&#8592; Kembali</button>
+    <div class="pbar">`;
+  steps.forEach((s, i) => {
+    html += `<div class="pdot ${i < step ? 'done' : ''}"></div>`;
+  });
+  html += `</div><span class="pcount">${step}/${steps.length}</span></div>`;
+
+  // Group label
+  const g = GROUPS[group];
+  html += `<p style="font-size:12px; color:#a07828; margin-bottom:10px;">${g.icon} ${g.label}</p>`;
+
+  // Current step options
+  if (step <= steps.length) {
+    const stepObj = steps[step - 1];
+    let options = stepObj.dynamic
+      ? getBurrowShapes(params.orientation, params.branching)
+      : stepObj.options;
+
+    html += `<div class="step-box">
+      <p class="step-label">${stepObj.label}</p>`;
+
+    if (!options || options.length === 0) {
+      html += `<p class="no-match">Lengkapi langkah sebelumnya terlebih dahulu.</p>`;
+    } else {
+      html += `<div class="options">`;
+      options.forEach(opt => {
+        const sel = params[stepObj.key] === opt.v ? "sel" : "";
+        html += `<button class="opt ${sel}" onclick="selectParam('${stepObj.key}','${opt.v}')">
+          <div class="opt-name">${opt.l}</div>
+          ${opt.d ? `<div class="opt-desc">${opt.d}</div>` : ""}
+        </button>`;
+      });
+      html += `</div>`;
+    }
+
+    if (results.length > 0 && step < steps.length) {
+      html += `<span class="skip-link" onclick="skipToResults()">Langsung ke hasil (${results.length} ichnogenera)</span>`;
+    }
+    html += `</div>`;
+  }
+
+  // Partial preview during steps
+  if (results.length > 0 && step <= steps.length) {
+    const preview = results.slice(0, 10);
+    html += `<div class="preview">
+      <p class="preview-title">Hasil sementara (${results.length}):</p>`;
+    preview.forEach(t => { html += `<span class="chip">${t}</span>`; });
+    if (results.length > 10) html += `<span class="chip">+${results.length-10} lagi…</span>`;
+    html += `</div>`;
+  }
+
+  // Full results
+  if (step > steps.length) {
+    html += renderResults(group, params, results);
+  }
+
+  app.innerHTML = html;
+
+  // Re-attach AI box if needed
+  if (state.aiLoading || state.aiText) {
+    const aiBox = document.getElementById("ai-result-box");
+    if (aiBox) {
+      if (state.aiLoading) {
+        aiBox.innerHTML = `<div class="loading">Membuat penjelasan…</div>`;
+      } else {
+        aiBox.innerHTML = formatAI(state.aiText);
+      }
+    }
+  }
+}
+
+function renderGroups() {
+  let html = `<p style="text-align:center; font-size:12px; color:#6a6460; margin-bottom:16px;">Pilih kategori utama trace fossil</p>
+  <div class="groups">`;
+  Object.entries(GROUPS).forEach(([key, g]) => {
+    html += `<button class="gcard ${g.cls}" onclick="selectGroup('${key}')">
+      <div class="gicon">${g.icon}</div>
+      <div class="gname">${g.label}</div>
+      <div class="glat">${g.latin}</div>
+    </button>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderResults(group, params, results) {
+  const g = GROUPS[group];
+  let html = `<div class="results-box rt-${g.cls}">
+    <div class="results-header">
+      <div>
+        <div class="results-title">Ichnogenera yang Cocok</div>
+        <div class="results-count">${results.length} hasil berdasarkan parameter yang dipilih</div>
+      </div>
+      <button class="reset-btn" onclick="resetAll()">Reset</button>
+    </div>`;
+
+  // Params summary
+  const usedParams = Object.entries(params).filter(([,v])=>v);
+  if (usedParams.length > 0) {
+    html += `<div class="params-used">`;
+    usedParams.forEach(([k,v]) => {
+      html += `<span class="param-tag">${k.replace(/_/g," ")}: <span class="param-val">${v.replace(/_/g," ")}</span></span>`;
+    });
+    html += `</div>`;
+  }
+
+  if (results.length === 0) {
+    html += `<p class="no-match">Tidak ada ichnogenera yang cocok dengan kombinasi ini. Coba perluas kriteria.</p>`;
+  } else {
+    html += `<div class="taxa-list">`;
+    results.forEach(t => { html += `<span class="taxon">${t}</span>`; });
+    html += `</div>
+    <button class="explain-btn" id="explain-btn" onclick="explainResults()" ${state.aiLoading ? "disabled" : ""}>
+      ${state.aiLoading ? "Memproses…" : "Jelaskan ichnogenera ini &rarr;"}
+    </button>
+    <div class="ai-box" id="ai-result-box"></div>`;
+  }
+
+  html += `<p class="ref">Sumber: Knaust, D., Bromley, R.G. (Eds.), 2012. Trace Fossils as Indicators of Sedimentary Environments. Developments in Sedimentology, vol. 64. Elsevier.</p>
+  </div>`;
+  return html;
+}
+
+function formatAI(text) {
+  if (!text) return "";
+  const escaped = text
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  const formatted = escaped.replace(/\*([^*]+)\*/g, "<em>$1</em>");
+  return formatted;
+}
+
+// ═══════════════════════════════════════════════════════
+// ACTIONS
+// ═══════════════════════════════════════════════════════
+
+function switchMode(m) {
+  document.getElementById("wizard-panel").style.display = m==="wizard" ? "" : "none";
+  document.getElementById("ai-panel").style.display     = m==="ai"     ? "" : "none";
+  document.getElementById("btn-wizard").className = "tbtn" + (m==="wizard" ? " on" : "");
+  document.getElementById("btn-ai").className     = "tbtn" + (m==="ai"     ? " on" : "");
+}
+
+function selectGroup(g) {
+  state.group  = g;
+  state.params = {};
+  state.step   = 1;
+  state.aiText = "";
+  render();
+}
+
+function selectParam(key, value) {
+  let p = { ...state.params, [key]: value };
+  if (key === "orientation") { delete p.branching; delete p.shape; }
+  if (key === "branching")   { delete p.shape; }
+  state.params = p;
+  const steps = WIZARD_STEPS[state.group];
+  state.step = Math.min(state.step + 1, steps.length + 1);
+  state.aiText = "";
+  render();
+}
+
+function goBack() {
+  if (state.step <= 1) { resetAll(); return; }
+  const steps = WIZARD_STEPS[state.group];
+  const prevIdx = Math.min(state.step - 2, steps.length - 1);
+  const prevKey = steps[prevIdx].key;
+  const p = { ...state.params };
+  delete p[prevKey];
+  if (prevKey === "orientation") { delete p.branching; delete p.shape; }
+  if (prevKey === "branching")   { delete p.shape; }
+  state.params = p;
+  state.step   = Math.max(1, state.step - 1);
+  state.aiText = "";
+  render();
+}
+
+function skipToResults() {
+  state.step = WIZARD_STEPS[state.group].length + 1;
+  render();
+}
+
+function resetAll() {
+  state = { group:null, params:{}, step:0, aiText:"", aiLoading:false };
+  render();
+}
+
+async function explainResults() {
+  const results = queryTaxa(state.group, state.params);
+  const paramDesc = Object.entries(state.params).filter(([,v])=>v).map(([k,v])=>`${k}=${v}`).join(", ");
+  const prompt = `Trace fossil group: "${state.group}". Parameters: ${paramDesc}. Matched ichnogenera: ${results.join(", ")}.
+
+Please provide:
+1. Key diagnostic features distinguishing the major ichnogenera in this list
+2. Tracemakers and ethological interpretations (behavior categories)
+3. Paleoenvironmental / ichnofacies significance
+
+Be concise (max 350 words). Use *italics* for ichnogenera names.`;
+
+  state.aiLoading = true;
+  render();
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: "You are an expert ichnologist following Knaust & Bromley (2012). Respond concisely but with scientific rigor. Use *italics* around ichnogenera names. Keep answers under 350 words.",
+        messages: [{ role:"user", content:prompt }]
+      })
+    });
+    const data = await resp.json();
+    state.aiText = data.content?.find(b=>b.type==="text")?.text || "Tidak ada respons.";
+  } catch(e) {
+    state.aiText = "Tidak dapat menghubungi layanan AI. Silakan coba lagi.";
+  }
+
+  state.aiLoading = false;
+  render();
+}
+
+async function runAI() {
+  const input = document.getElementById("ai-input").value.trim();
+  if (!input) return;
+  const btn = document.getElementById("ident-btn");
+  const resultDiv = document.getElementById("ai-result");
+  btn.disabled = true;
+  btn.textContent = "Memproses…";
+  resultDiv.innerHTML = `<div class="step-box" style="margin-top:12px"><div class="loading">Mengidentifikasi trace fossil…</div></div>`;
+
+  const prompt = `An ichnologist observes: "${input}"
+
+Based on Knaust & Bromley (2012) classification system, please:
+1. Suggest the most likely trace fossil group (burrows, bioerosional, trackways, imprints, or trails)
+2. Recommend which parameters to evaluate step by step
+3. List 3–5 candidate ichnogenera with brief justification for each
+4. Note key distinguishing features to verify in the field or thin section
+
+Be concise and practical (max 350 words). Use *italics* for ichnogenera names.`;
+
+  try {
+    const resp = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 1000,
+        system: "You are an expert ichnologist following Knaust & Bromley (2012). Respond concisely but with scientific rigor. Use *italics* around ichnogenera names. Keep answers under 350 words.",
+        messages: [{ role:"user", content:prompt }]
+      })
+    });
+    const data = await resp.json();
+    const text = data.content?.find(b=>b.type==="text")?.text || "Tidak ada respons.";
+    resultDiv.innerHTML = `<div class="step-box" style="margin-top:12px">
+      <p style="font-size:13px; line-height:1.7; color:#c4bcb0; white-space:pre-wrap;">${formatAI(text)}</p>
+    </div>`;
+  } catch(e) {
+    resultDiv.innerHTML = `<div class="step-box" style="margin-top:12px"><p class="no-match">Tidak dapat menghubungi layanan AI. Periksa koneksi internet Anda.</p></div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = "Identifikasi Trace Fossil →";
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+
+render();
+</script>
+</body>
+</html>
